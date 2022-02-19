@@ -21,7 +21,15 @@
 //way to crop/copy the explotable area.
 //  Other way that im thinking is catch the values of the top left and bottom right corners of the exploration and then sum the n mines within
 //this limit values. To facilitate this, the gold mines coordinates can be sorted by the x and y values.
-
+//
+//
+// ---------------------------------------------------EDIT: 19/02/2022-----------------------------------------------------
+//  The other way to solve this, with will reduce the processing time by an order of complexity of sqrt(actual time) is using 
+//a Somed Area Table algorithm.
+//  The idea is use an auxiliary matrix to store the sum of the positions, as can be seen in this link: https://en.wikipedia.org/wiki/Summed-area_table
+//  At the end of this code (attachment 1), i placed , as comment, an incomplete code to sample the possibilities of solve this problem. 
+//  The code is not complete, but i think it's a good idea to try it, what i'm doing, btw.
+//
 
 
 function findBestSpot(landWidth, landHeight, exploitationWidth, exploitationHeight, goldMines) {
@@ -86,3 +94,100 @@ function matrix(_landWidth, _landHeight) { //create a Zero filled matrix
 }
 
 module.exports = findBestSpot;
+
+
+
+// ---------------------------------------------------Attachment 1-----------------------------------------------------
+/* 
+function findBestSpot(landWidth, landHeight, exploitationWidth, exploitationHeight, goldMines) {
+    var land = matrix(landWidth, landHeight);
+    var aux = matrix(landWidth, landHeight);
+    populateLand(land, goldMines);
+    aux = preProcess(landWidth, landHeight, land, aux);
+    var count = 0;
+    var bestSpot = [0,0,0];
+
+    for (let i = 0; i < landWidth - exploitationWidth; i++) {
+        for (let j = 0; j < landHeight - exploitationHeight; j++) {
+            count = 0;
+            count = sumQuery(land, i, j, i + exploitationWidth, j + exploitationHeight);
+
+            bestSpot = bestSpot[2] < count ? [i, j, count] : bestSpot;
+        }
+    };
+    return { //the return the best spot as an object
+        coordinates: {
+            x: bestSpot[0],
+            y: bestSpot[1]
+        },
+        goldMines: bestSpot[2]
+    };
+}
+
+function matrix(_landWidth, _landHeight) { 
+    if (_landHeight == 0 || _landWidth == 0) {
+        return [[]];
+    } else {
+        return new Array(_landWidth).fill(0).map(() => new Array(_landHeight).fill(0));
+
+    }
+}
+
+function populateLand(_land, _goldMines) {
+    _goldMines.forEach(item => {
+        _land[item.x][item.y] = 1;
+    });
+    return _land;
+}
+
+function preProcess(M, N, _mat, _aux) {
+
+    // Copy first row of _mat[][] to _aux[][]
+    for (var i = 0; i < N; i++)
+        _aux[i,0] = _mat[0, i];
+
+    // Do column wise sum
+    for (var i = 1; i < M; i++)
+        for (var j = 0; j < N; j++)
+        if(_aux[i][j]) _aux[i][j] = _mat[i][j] + _aux[i - 1][j];
+
+    // Do row wise sum
+    for (var i = 0; i < M; i++)
+        for (var j = 1; j < N; j++)
+            _aux[i][j] += _aux[i][j - 1] ||[];
+            
+
+    return _aux;
+}
+
+// A O(1) time function to compute sum
+// of sub_matrix between (tli, tlj) and
+// (rbi, rbj) using aux[][] which is
+// built by the preprocess function
+function sumQuery(aux, tli, tlj, rbi, rbj) {
+
+    // result is now sum of elements
+    // between (0, 0) and (rbi, rbj)
+    var res = aux[rbi][rbj];
+
+    // Remove elements between (0, 0)
+    // and (tli-1, rbj)
+    if (tli > 0)
+        res = res - aux[tli - 1][rbj];
+
+    // Remove elements between (0, 0)
+    // and (rbi, tlj-1)
+    if (tlj > 0)
+        res = res - aux[rbi][tlj - 1];
+
+    // Add aux[tli-1][tlj-1] as elements
+    // between (0, 0) and (tli-1, tlj-1)
+    // are subtracted twice
+    if (tli > 0 && tlj > 0)
+        res = res + aux[tli - 1][tlj - 1];
+
+    return res;
+}
+
+module.exports = findBestSpot;
+ */
